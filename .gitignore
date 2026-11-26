@@ -1,0 +1,11 @@
+# Downloaded by the harvester, not redistributed here
+data/documents/
+data/text/
+data/raw/
+data/cired_hal_new.ris
+data/catalog/download_failures_*.json
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
