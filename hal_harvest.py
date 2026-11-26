@@ -360,7 +360,14 @@ RIS_TYPES = {
     "NOTICE": "ENCYC",
     "ISSUE": "JFULL",
 }
-CONTAINER_FIELD = {"journalTitle_s", "bookTitle_s", "conferenceTitle_s"}
+# Container title (RIS T2) by priority, per HAL type; HAL records often fill several.
+CONTAINER_PRIORITY = {
+    "COMM": ("bookTitle_s", "conferenceTitle_s", "journalTitle_s"),
+    "POSTER": ("bookTitle_s", "conferenceTitle_s", "journalTitle_s"),
+    "PROCEEDINGS": ("bookTitle_s", "conferenceTitle_s", "journalTitle_s"),
+    "COUV": ("bookTitle_s", "journalTitle_s", "conferenceTitle_s"),
+}
+DEFAULT_CONTAINER_PRIORITY = ("journalTitle_s", "bookTitle_s", "conferenceTitle_s")
 
 
 def _first(value: Any) -> str:
@@ -382,7 +389,8 @@ def ris_record(pub: dict[str, Any], attachment: str | None) -> list[str]:
     if date[:4].isdigit():
         lines.append(("PY", date[:4]))
         lines.append(("DA", date.replace("-", "/")))
-    container = next((_first(pub[f]) for f in CONTAINER_FIELD if pub.get(f)), "")
+    priority = CONTAINER_PRIORITY.get(_first(pub.get("docType_s")), DEFAULT_CONTAINER_PRIORITY)
+    container = next((_first(pub[f]) for f in priority if pub.get(f)), "")
     for tag, value in (
         ("T2", container),
         ("SN", _first(pub.get("journalIssn_s"))),

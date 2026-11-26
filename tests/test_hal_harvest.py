@@ -214,6 +214,15 @@ def test_ris_record_maps_hal_fields_and_attaches_local_file(tmp_path):
     assert "TY  - GEN" in second and "TI  - X & Y" in second and "L1" not in second
 
 
+def test_ris_container_follows_document_type_not_hash_order():
+    pub = {"halId_s": "hal-1", "journalTitle_s": "J", "bookTitle_s": "B", "conferenceTitle_s": "C"}
+    t2 = {
+        dt: next(x for x in hh.ris_record({**pub, "docType_s": dt}, None) if x.startswith("T2"))
+        for dt in ("ART", "COMM", "COUV", "OTHER")
+    }
+    assert t2 == {"ART": "T2  - J", "COMM": "T2  - B", "COUV": "T2  - B", "OTHER": "T2  - J"}
+
+
 def test_ris_new_since_keeps_only_records_absent_from_earlier_catalogue(tmp_path):
     (tmp_path / "documents").mkdir()
     old = tmp_path / "old.json"
